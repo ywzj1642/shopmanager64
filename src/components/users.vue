@@ -8,11 +8,16 @@
     </el-breadcrumb>
     <!-- 搜索框 -->
     <div style="margin-top: 15px;">
-      <el-input @clear="getAllUsers()" clearable placeholder="请输入内容" v-model="query" class="searchInput">
-        <el-button slot="append" icon="el-icon-search"
-        @click="searchUser()"></el-button>
+      <el-input
+        @clear="getAllUsers()"
+        clearable
+        placeholder="请输入内容"
+        v-model="query"
+        class="searchInput"
+      >
+        <el-button slot="append" icon="el-icon-search" @click="searchUser()"></el-button>
       </el-input>
-      <el-button type="primary">添加用户</el-button>
+      <el-button @click="showDiaAddUser()" type="primary">添加用户</el-button>
     </div>
     <!-- 列表 -->
     <!--
@@ -69,8 +74,30 @@
       :page-sizes="[2, 4, 6, 8]"
       :page-size="100"
       layout="total, sizes, prev, pager, next, jumper"
-      :total="total">
-    </el-pagination>
+      :total="total"
+    ></el-pagination>
+
+    <!-- 对话框  添加用户 -->
+    <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
+      <el-form label-position="left" label-width="80px" :model="formdata">
+        <el-form-item label="用户名">
+          <el-input v-model="formdata.username"></el-input>
+        </el-form-item>
+        <el-form-item label="密码">
+          <el-input v-model="formdata.password"></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="formdata.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input v-model="formdata.mobile"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleAdd = false">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -82,6 +109,14 @@ export default {
       pagenum: 1,
       pagesize: 2,
       total: -1,
+      dialogFormVisibleAdd: false,
+      //表单数据,将来作为发送post请求的请求体
+      formdata:{
+          username: '',
+          password: '',
+          email: '',
+          mobile: ''
+      },
       //表格数据
       list: []
     };
@@ -90,27 +125,32 @@ export default {
     this.getTableData();
   },
   methods: {
-    getAllUsers(){
-        this.getTableData();
-    },
-      //搜索用户
-    searchUser(){
-        this.pagenum = 1;
-        this.getTableData();
-    },
-      //分页相关方法
-    handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-        //按照新的pagesize发送请求,重置pagenum为1;
-        this.pagenum = 1;
-        this.pagesize = val;
-        this.getTableData();
+      //添加按钮--打开对话框
+      showDiaAddUser(){
+          this.dialogFormVisibleAdd = true;
       },
-      //页面发生改变触发
+      //获取所有用户
+    getAllUsers() {
+      this.getTableData();
+    },
+    //搜索用户
+    searchUser() {
+      this.pagenum = 1;
+      this.getTableData();
+    },
+    //分页相关方法
+    handleSizeChange(val) {
+      console.log(`每页 ${val} 条`);
+      //按照新的pagesize发送请求,重置pagenum为1;
+      this.pagenum = 1;
+      this.pagesize = val;
+      this.getTableData();
+    },
+    //页面发生改变触发
     handleCurrentChange(val) {
-    console.log(`当前页: ${val}`);
-    this.pagenum = val;
-    this.getTableData();
+      console.log(`当前页: ${val}`);
+      this.pagenum = val;
+      this.getTableData();
     },
     async getTableData() {
       const AUTH_TOKEN = localStorage.getItem("token");
@@ -120,7 +160,7 @@ export default {
           this.pagesize
         }`
       );
-        console.log(res)
+      console.log(res);
       const {
         data,
         meta: { msg, status }
@@ -130,8 +170,7 @@ export default {
         this.list = data.users;
         // console.log(this.list);
       }
-    },
-    
+    }
   }
 };
 </script>
@@ -144,6 +183,6 @@ export default {
   width: 350px;
 }
 .page {
-    margin-top: 20px;
+  margin-top: 20px;
 }
 </style>
