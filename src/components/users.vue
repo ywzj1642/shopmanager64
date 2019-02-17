@@ -23,10 +23,10 @@
       // role_name: "主管"
       // mg_state: true
     -->
-    <el-table :data="list" style="width: 100%">
+    <el-table height="350px" :data="list" style="width: 100%">
       <el-table-column prop="id" label="#" width="80"></el-table-column>
       <el-table-column prop="username" label="姓名" width="120"></el-table-column>
-      <el-table-column prop="email" label="邮箱" width="140"></el-table-column>
+      <el-table-column prop="email" label="邮箱" width="180"></el-table-column>
       <el-table-column prop="mobile" label="电话" width="140"></el-table-column>
 
       <!-- 日期格式处理 ->过滤器 ->两类加三部
@@ -60,6 +60,16 @@
       </el-table-column>
     </el-table>
     <!-- 分页 -->
+    <el-pagination
+      class="page"
+      @size-change="handleSizeChange"
+      @current-change="handleCurrentChange"
+      :current-page="pagenum"
+      :page-sizes="[2, 4, 6, 8]"
+      :page-size="100"
+      layout="total, sizes, prev, pager, next, jumper"
+      :total="total">
+    </el-pagination>
   </el-card>
 </template>
 
@@ -69,8 +79,8 @@ export default {
     return {
       query: "",
       pagenum: 1,
-      pagesize: 8,
-
+      pagesize: 2,
+      total: -1,
       //表格数据
 
       list: []
@@ -80,6 +90,21 @@ export default {
     this.getTableData();
   },
   methods: {
+      //分页相关方法
+      //
+    handleSizeChange(val) {
+        console.log(`每页 ${val} 条`);
+        //按照新的pagesize发送请求,重置pagenum为1;
+        this.pagenum = 1;
+        this.pagesize = val;
+        this.getTableData();
+      },
+      //页面发生改变触发
+    handleCurrentChange(val) {
+    console.log(`当前页: ${val}`);
+    this.pagenum = val;
+    this.getTableData();
+    },
     async getTableData() {
       const AUTH_TOKEN = localStorage.getItem("token");
       this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
@@ -88,16 +113,18 @@ export default {
           this.pagesize
         }`
       );
-      //   console.log(res)
+        console.log(res)
       const {
         data,
         meta: { msg, status }
       } = res.data;
       if (status === 200) {
+        this.total = data.total;
         this.list = data.users;
-        console.log(this.list);
+        // console.log(this.list);
       }
-    }
+    },
+    
   }
 };
 </script>
@@ -108,5 +135,8 @@ export default {
 }
 .searchInput {
   width: 350px;
+}
+.page {
+    margin-top: 20px;
 }
 </style>
