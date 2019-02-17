@@ -60,7 +60,7 @@
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
           <el-button
-            @click="showDiaEditUser()"
+            @click="showDiaEditUser(scope.row)"
             type="primary"
             icon="el-icon-edit"
             size="mini"
@@ -161,12 +161,27 @@ export default {
     this.getTableData();
   },
   methods: {
-    editUser(){
-
+    async editUser(){
+        //发送请求,提交数据
+        const res = await this.$http.put(`users/${this.formdata.id}`, this.formdata)
+        // console.log(res);
+        //解构赋值,获取响应信息
+        const {meta: {msg, status}} = res.data;
+        // 判断响应状态
+        if(status === 200){
+            // 提示信息
+            this.$message.success(msg);
+            //关闭对话框
+            this.dialogFormVisibleEdit = false;
+            // 重新加载
+            this.getTableData();
+        }
     },
     //编辑用户-展示对话框
-    showDiaEditUser() {
+    showDiaEditUser(user) {
         this.dialogFormVisibleEdit = true;
+        // console.log(user)
+        this.formdata = user
     },
     //删除用户
     showMsgBoxDele(user) {
@@ -190,6 +205,8 @@ export default {
           if (status === 200) {
             //显示信息
             this.$message.success(msg);
+            //把页码重置为第一页
+            this.pagenum = 1;
             //重新加载页面
             this.getTableData();
           }
