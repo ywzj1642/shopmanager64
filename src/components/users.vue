@@ -51,12 +51,15 @@
       <el-table-column label="创建日期" width="140">
         <template slot-scope="list">{{list.row.create_time | fmtdate}}</template>
       </el-table-column>
-
+        <!-- mg_state: true   用户状态-->
       <el-table-column label="用户状态" width="140">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+            <!-- change 事件 -->
+          <el-switch @change="changeState(scope.row)" v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
         </template>
       </el-table-column>
+
+
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
           <el-button
@@ -161,6 +164,13 @@ export default {
     this.getTableData();
   },
   methods: {
+      //开关状态
+    async changeState(user){
+        const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`);
+        console.log(res);
+    },
+
+      //编辑用户--保存
     async editUser(){
         //发送请求,提交数据
         const res = await this.$http.put(`users/${this.formdata.id}`, this.formdata)
