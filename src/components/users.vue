@@ -108,7 +108,8 @@ export default {
       query: "",
       pagenum: 1,
       pagesize: 2,
-      total: -1,
+      total: -1,//默认值是-1,区分初始值
+      //添加用户对话框,默认值为false,表示隐藏
       dialogFormVisibleAdd: false,
       //表单数据,将来作为发送post请求的请求体
       formdata:{
@@ -117,7 +118,7 @@ export default {
           email: '',
           mobile: ''
       },
-      //表格数据
+      //表格数据,定义一个新数组,接收获取的数据
       list: []
     };
   },
@@ -125,19 +126,26 @@ export default {
     this.getTableData();
   },
   methods: {
+      //添加用户方法
       async addUser(){
+        //   异步请求发送
           const res = await this.$http.post('users', this.formdata)
-          console.log(res);
+        //   console.log(res);
+        //解构赋值获取数据信息
           const {data:{data, meta:{msg, status}}} = res;
           if(status === 201){
+          // 关闭对话框
           this.dialogFormVisibleAdd = false;
+          //重新加载数据
           this.getTableData();
 
           }
       },
       //添加按钮--打开对话框
       showDiaAddUser(){
+          //打开对话框
           this.dialogFormVisibleAdd = true;
+          //清除表单数据
           this.formdata = {};
       },
       //获取所有用户
@@ -163,19 +171,24 @@ export default {
       this.pagenum = val;
       this.getTableData();
     },
+    //获取表单数据
     async getTableData() {
+        //设置请求头
       const AUTH_TOKEN = localStorage.getItem("token");
       this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      //发送请求(异步)
       const res = await this.$http.get(
         `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${
           this.pagesize
         }`
       );
-      console.log(res);
+    //   console.log(res);
+    //结构赋值获取数据信息
       const {
         data,
         meta: { msg, status }
       } = res.data;
+      //判断请求状态
       if (status === 200) {
         this.total = data.total;
         this.list = data.users;
