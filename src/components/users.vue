@@ -52,9 +52,6 @@
         <template slot-scope="list">{{list.row.create_time | fmtdate}}</template>
       </el-table-column>
 
-
-
-
       <el-table-column label="用户状态" width="140">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
@@ -62,8 +59,22 @@
       </el-table-column>
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
-          <el-button type="primary" icon="el-icon-edit" size="mini" circle plain></el-button>
-          <el-button @click="showMsgBoxDele(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle plain></el-button>
+          <el-button
+            @click="showDiaEditUser()"
+            type="primary"
+            icon="el-icon-edit"
+            size="mini"
+            circle
+            plain
+          ></el-button>
+          <el-button
+            @click="showMsgBoxDele(scope.row)"
+            type="danger"
+            icon="el-icon-delete"
+            size="mini"
+            circle
+            plain
+          ></el-button>
           <el-button type="success" icon="el-icon-check" size="mini" circle plain></el-button>
         </template>
       </el-table-column>
@@ -101,6 +112,26 @@
         <el-button type="primary" @click="addUser()">确 定</el-button>
       </div>
     </el-dialog>
+
+    <!-- 对话框  编辑用户 -->
+    <el-dialog title="编辑用户" :visible.sync="dialogFormVisibleEdit">
+      <el-form  label-position="left" label-width="80px" :model="formdata">
+        <el-form-item label="用户名">
+          <el-input v-model="formdata.username" disabled></el-input>
+        </el-form-item>
+        <el-form-item label="邮箱">
+          <el-input v-model="formdata.email"></el-input>
+        </el-form-item>
+        <el-form-item label="电话">
+          <el-input v-model="formdata.mobile"></el-input>
+        </el-form-item>
+        
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
+        <el-button type="primary" @click="editUser()">确 定</el-button>
+      </div>
+    </el-dialog>
   </el-card>
 </template>
 
@@ -111,15 +142,16 @@ export default {
       query: "",
       pagenum: 1,
       pagesize: 2,
-      total: -1,//默认值是-1,区分初始值
+      total: -1, //默认值是-1,区分初始值
       //添加用户对话框,默认值为false,表示隐藏
       dialogFormVisibleAdd: false,
+      dialogFormVisibleEdit: false,
       //表单数据,将来作为发送post请求的请求体
-      formdata:{
-          username: '',
-          password: '',
-          email: '',
-          mobile: ''
+      formdata: {
+        username: "",
+        password: "",
+        email: "",
+        mobile: ""
       },
       //表格数据,定义一个新数组,接收获取的数据
       list: []
@@ -129,56 +161,71 @@ export default {
     this.getTableData();
   },
   methods: {
-      //删除用户
-      showMsgBoxDele(user){
-        //   console.log(user)
-        //弹框组件
-          this.$confirm('删除该用户, 是否继续?', '提示', {
-          confirmButtonText: '确定',
-          cancelButtonText: '取消',
-          type: 'warning'
-        }).then(async () => {
-            //点击确定发送请求
-            //id->用户的id
-          const res = await this.$http.delete(`users/${user.id}`)
-        //   console.log(res)
-        //解构赋值获取信息
-          const {meta:{ msg, status}} = res.data;
+    editUser(){
+
+    },
+    //编辑用户-展示对话框
+    showDiaEditUser() {
+        this.dialogFormVisibleEdit = true;
+    },
+    //删除用户
+    showMsgBoxDele(user) {
+      //   console.log(user)
+      //弹框组件
+      this.$confirm("删除该用户, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(async () => {
+          //点击确定发送请求
+          //id->用户的id
+          const res = await this.$http.delete(`users/${user.id}`);
+          //   console.log(res)
+          //解构赋值获取信息
+          const {
+            meta: { msg, status }
+          } = res.data;
           //判断请求状态
-          if(status === 200){
-              //显示信息
+          if (status === 200) {
+            //显示信息
             this.$message.success(msg);
             //重新加载页面
             this.getTableData();
           }
-        }).catch(() => {
-            //点击取消按钮
-          this.$message.info('已取消删除');          
+        })
+        .catch(() => {
+          //点击取消按钮
+          this.$message.info("已取消删除");
         });
-      },
-      //添加用户方法qu
-      async addUser(){
-        //   异步请求发送
-          const res = await this.$http.post('users', this.formdata)
-        //   console.log(res);
-        //解构赋值获取数据信息
-          const {data:{data, meta:{msg, status}}} = res;
-          if(status === 201){
-          // 关闭对话框
-          this.dialogFormVisibleAdd = false;
-          //重新加载数据
-          this.getTableData();
-
-          }
-      },
-      //添加按钮--打开对话框
-      showDiaAddUser(){
-          //打开对话框
-          this.dialogFormVisibleAdd = true;
-          //清除表单数据
-          this.formdata = {};
-      },
-      //获取所有用户
+    },
+    //添加用户方法qu
+    async addUser() {
+      //   异步请求发送
+      const res = await this.$http.post("users", this.formdata);
+      //   console.log(res);
+      //解构赋值获取数据信息
+      const {
+        data: {
+          data,
+          meta: { msg, status }
+        }
+      } = res;
+      if (status === 201) {
+        // 关闭对话框
+        this.dialogFormVisibleAdd = false;
+        //重新加载数据
+        this.getTableData();
+      }
+    },
+    //添加按钮--打开对话框
+    showDiaAddUser() {
+      //打开对话框
+      this.dialogFormVisibleAdd = true;
+      //清除表单数据
+      this.formdata = {};
+    },
+    //获取所有用户
     getAllUsers() {
       this.getTableData();
     },
@@ -203,7 +250,7 @@ export default {
     },
     //获取表单数据
     async getTableData() {
-        //设置请求头
+      //设置请求头
       const AUTH_TOKEN = localStorage.getItem("token");
       this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
       //发送请求(异步)
@@ -212,8 +259,8 @@ export default {
           this.pagesize
         }`
       );
-    //   console.log(res);
-    //结构赋值获取数据信息
+      //   console.log(res);
+      //结构赋值获取数据信息
       const {
         data,
         meta: { msg, status }
