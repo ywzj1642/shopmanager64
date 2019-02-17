@@ -8,8 +8,9 @@
     </el-breadcrumb>
     <!-- 搜索框 -->
     <div style="margin-top: 15px;">
-      <el-input placeholder="请输入内容" v-model="query" class="searchInput">
-        <el-button slot="append" icon="el-icon-search"></el-button>
+      <el-input @clear="getAllUsers()" clearable placeholder="请输入内容" v-model="query" class="searchInput">
+        <el-button slot="append" icon="el-icon-search"
+        @click="searchUser()"></el-button>
       </el-input>
       <el-button type="primary">添加用户</el-button>
     </div>
@@ -82,7 +83,6 @@ export default {
       pagesize: 2,
       total: -1,
       //表格数据
-
       list: []
     };
   },
@@ -90,8 +90,15 @@ export default {
     this.getTableData();
   },
   methods: {
+    getAllUsers(){
+        this.getTableData();
+    },
+      //搜索用户
+    searchUser(){
+        this.pagenum = 1;
+        this.getTableData();
+    },
       //分页相关方法
-      //
     handleSizeChange(val) {
         console.log(`每页 ${val} 条`);
         //按照新的pagesize发送请求,重置pagenum为1;
