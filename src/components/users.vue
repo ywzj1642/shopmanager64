@@ -52,6 +52,9 @@
         <template slot-scope="list">{{list.row.create_time | fmtdate}}</template>
       </el-table-column>
 
+
+
+
       <el-table-column label="用户状态" width="140">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
@@ -60,8 +63,8 @@
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
           <el-button type="primary" icon="el-icon-edit" size="mini" circle plain></el-button>
-          <el-button type="danger" icon="el-icon-delete" circle plain size="mini"></el-button>
-          <el-button type="success" icon="el-icon-check" circle plain size="mini"></el-button>
+          <el-button @click="showMsgBoxDele(scope.row)" type="danger" icon="el-icon-delete" size="mini" circle plain></el-button>
+          <el-button type="success" icon="el-icon-check" size="mini" circle plain></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -126,7 +129,34 @@ export default {
     this.getTableData();
   },
   methods: {
-      //添加用户方法
+      //删除用户
+      showMsgBoxDele(user){
+        //   console.log(user)
+        //弹框组件
+          this.$confirm('删除该用户, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(async () => {
+            //点击确定发送请求
+            //id->用户的id
+          const res = await this.$http.delete(`users/${user.id}`)
+        //   console.log(res)
+        //解构赋值获取信息
+          const {meta:{ msg, status}} = res.data;
+          //判断请求状态
+          if(status === 200){
+              //显示信息
+            this.$message.success(msg);
+            //重新加载页面
+            this.getTableData();
+          }
+        }).catch(() => {
+            //点击取消按钮
+          this.$message.info('已取消删除');          
+        });
+      },
+      //添加用户方法qu
       async addUser(){
         //   异步请求发送
           const res = await this.$http.post('users', this.formdata)
