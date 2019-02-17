@@ -51,14 +51,18 @@
       <el-table-column label="创建日期" width="140">
         <template slot-scope="list">{{list.row.create_time | fmtdate}}</template>
       </el-table-column>
-        <!-- mg_state: true   用户状态-->
+      <!-- mg_state: true   用户状态-->
       <el-table-column label="用户状态" width="140">
         <template slot-scope="scope">
-            <!-- change 事件 -->
-          <el-switch @change="changeState(scope.row)" v-model="scope.row.mg_state" active-color="#13ce66" inactive-color="#ff4949"></el-switch>
+          <!-- change 事件 -->
+          <el-switch
+            @change="changeState(scope.row)"
+            v-model="scope.row.mg_state"
+            active-color="#13ce66"
+            inactive-color="#ff4949"
+          ></el-switch>
         </template>
       </el-table-column>
-
 
       <el-table-column label="操作" width="200">
         <template slot-scope="scope">
@@ -78,7 +82,14 @@
             circle
             plain
           ></el-button>
-          <el-button type="success" icon="el-icon-check" size="mini" circle plain></el-button>
+          <el-button
+            @click="showDiaSetRole()"
+            type="success"
+            icon="el-icon-check"
+            size="mini"
+            circle
+            plain
+          ></el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -118,7 +129,7 @@
 
     <!-- 对话框  编辑用户 -->
     <el-dialog title="编辑用户" :visible.sync="dialogFormVisibleEdit">
-      <el-form  label-position="left" label-width="80px" :model="formdata">
+      <el-form label-position="left" label-width="80px" :model="formdata">
         <el-form-item label="用户名">
           <el-input v-model="formdata.username" disabled></el-input>
         </el-form-item>
@@ -128,11 +139,29 @@
         <el-form-item label="电话">
           <el-input v-model="formdata.mobile"></el-input>
         </el-form-item>
-        
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleEdit = false">取 消</el-button>
         <el-button type="primary" @click="editUser()">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <!-- 对话框   分配用户 -->
+    <el-dialog title="分配角色" :visible.sync="dialogFormVisibleRole">
+      <el-form label-position="left" label-width="80px" :model="formdata">
+        <el-form-item label="用户名">
+            {{formdata.username}}
+        </el-form-item>
+        <el-form-item label="活动区域">
+          <el-select v-model="selectVal" placeholder="请选择活动区域">
+            <el-option label="区域一" value="shanghai"></el-option>
+            <el-option label="区域二" value="beijing"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
+        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -149,6 +178,7 @@ export default {
       //添加用户对话框,默认值为false,表示隐藏
       dialogFormVisibleAdd: false,
       dialogFormVisibleEdit: false,
+      dialogFormVisibleRole: false,
       //表单数据,将来作为发送post请求的请求体
       formdata: {
         username: "",
@@ -156,6 +186,8 @@ export default {
         email: "",
         mobile: ""
       },
+      //下拉框用的数据
+      selectVal: 1,
       //表格数据,定义一个新数组,接收获取的数据
       list: []
     };
@@ -164,34 +196,44 @@ export default {
     this.getTableData();
   },
   methods: {
-      //开关状态
-    async changeState(user){
-        const res = await this.$http.put(`users/${user.id}/state/${user.mg_state}`);
-        console.log(res);
+    //分配角色--打开对话框
+    showDiaSetRole() {},
+
+    //开关状态
+    async changeState(user) {
+      const res = await this.$http.put(
+        `users/${user.id}/state/${user.mg_state}`
+      );
+      console.log(res);
     },
 
-      //编辑用户--保存
-    async editUser(){
-        //发送请求,提交数据
-        const res = await this.$http.put(`users/${this.formdata.id}`, this.formdata)
-        // console.log(res);
-        //解构赋值,获取响应信息
-        const {meta: {msg, status}} = res.data;
-        // 判断响应状态
-        if(status === 200){
-            // 提示信息
-            this.$message.success(msg);
-            //关闭对话框
-            this.dialogFormVisibleEdit = false;
-            // 重新加载
-            this.getTableData();
-        }
+    //编辑用户--保存
+    async editUser() {
+      //发送请求,提交数据
+      const res = await this.$http.put(
+        `users/${this.formdata.id}`,
+        this.formdata
+      );
+      // console.log(res);
+      //解构赋值,获取响应信息
+      const {
+        meta: { msg, status }
+      } = res.data;
+      // 判断响应状态
+      if (status === 200) {
+        // 提示信息
+        this.$message.success(msg);
+        //关闭对话框
+        this.dialogFormVisibleEdit = false;
+        // 重新加载
+        this.getTableData();
+      }
     },
     //编辑用户-展示对话框
     showDiaEditUser(user) {
-        this.dialogFormVisibleEdit = true;
-        // console.log(user)
-        this.formdata = user
+      this.dialogFormVisibleEdit = true;
+      // console.log(user)
+      this.formdata = user;
     },
     //删除用户
     showMsgBoxDele(user) {
