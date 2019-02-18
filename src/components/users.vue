@@ -83,7 +83,7 @@
             plain
           ></el-button>
           <el-button
-            @click="showDiaSetRole()"
+            @click="showDiaSetRole(scope.row)"
             type="success"
             icon="el-icon-check"
             size="mini"
@@ -154,16 +154,17 @@
         </el-form-item>
         <el-form-item label="角色">
           <el-select v-model="selectVal" placeholder="请选择角色">
-            <el-option label="请选择" value="shanghai" disabled></el-option>
-
+            <el-option label="请选择" :value="-1" disabled></el-option>
+            
             <!-- 将来通过v-for遍历,从后台获取数据 -->
+            <el-option v-for="(item, i) in roles" :key="item.id" :label="item.roleName" :value="item.id"></el-option>
 
           </el-select>
         </el-form-item>
       </el-form>
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisibleRole = false">取 消</el-button>
-        <el-button type="primary" @click="dialogFormVisibleRole = false">确 定</el-button>
+        <el-button type="primary" @click="setRole()">确 定</el-button>
       </div>
     </el-dialog>
   </el-card>
@@ -189,7 +190,9 @@ export default {
         mobile: ""
       },
       //下拉框用的数据
-      selectVal: "请选择",
+      selectVal: 1,
+      currUserId:-1,
+      roles:[],
       //表格数据,定义一个新数组,接收获取的数据
       list: []
     };
@@ -198,9 +201,28 @@ export default {
     this.getTableData();
   },
   methods: {
+    // 角色分配--发送请求
+    async setRole(){
+      const res = await this.$http.put(`users/${this.currUserId}/role`,{rid:this.selectVal})
+      const {meta: { msg, status }} = res.data;
+      if(status === 200){
+        this.dialogFormVisibleRole = false;
+      }
+    },
     //分配角色--打开对话框
-    showDiaSetRole() {
+    async showDiaSetRole(user) {
+      this.formdata = user;
+      this.currUserId = user.id;
       this.dialogFormVisibleRole = true;
+      // 发送请求,获取角色列表数据
+      const res = await this.$http.get('roles');
+      // console.log(res)
+      const {data} = res.data;
+      this.roles = data;
+
+      const res2 = await this.$http.get(`users/${user.id}`);
+      console.log(res2);
+      this.selectVal = res2.data.data.rid;
     },
 
     //开关状态
