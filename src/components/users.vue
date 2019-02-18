@@ -152,10 +152,12 @@
         <el-form-item label="用户名">
             {{formdata.username}}
         </el-form-item>
-        <el-form-item label="活动区域">
-          <el-select v-model="selectVal" placeholder="请选择活动区域">
-            <el-option label="区域一" value="shanghai"></el-option>
-            <el-option label="区域二" value="beijing"></el-option>
+        <el-form-item label="角色">
+          <el-select v-model="selectVal" placeholder="请选择角色">
+            <el-option label="请选择" value="shanghai" disabled></el-option>
+
+            <!-- 将来通过v-for遍历,从后台获取数据 -->
+
           </el-select>
         </el-form-item>
       </el-form>
@@ -187,7 +189,7 @@ export default {
         mobile: ""
       },
       //下拉框用的数据
-      selectVal: 1,
+      selectVal: "请选择",
       //表格数据,定义一个新数组,接收获取的数据
       list: []
     };
@@ -197,7 +199,9 @@ export default {
   },
   methods: {
     //分配角色--打开对话框
-    showDiaSetRole() {},
+    showDiaSetRole() {
+      this.dialogFormVisibleRole = true;
+    },
 
     //开关状态
     async changeState(user) {
