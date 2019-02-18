@@ -346,15 +346,13 @@ export default {
     //获取表单数据
     async getTableData() {
       //设置请求头
-      const AUTH_TOKEN = localStorage.getItem("token");
-      this.$http.defaults.headers.common["Authorization"] = AUTH_TOKEN;
+      
       //发送请求(异步)
       const res = await this.$http.get(
         `users?query=${this.query}&pagenum=${this.pagenum}&pagesize=${
           this.pagesize
         }`
       );
-      //   console.log(res);
       //结构赋值获取数据信息
       const {
         data,

@@ -13,17 +13,17 @@ import moment from 'moment'
 
 import cusBread from '@/components/cusBread.vue'
 
-
-import axios from 'axios'
-axios.defaults.baseURL="http://localhost:8888/api/private/v1/"
-Vue.prototype.$http = axios
+import HttpServer from '@/http.js'
+//所有Vue插件都是通过use引用
+//不能直接用,需把Vue插件axios变成Vue插件
+Vue.use(HttpServer);
 
 Vue.config.productionTip = false
 Vue.use(ElementUI)
 
 
 //全局过滤器,处理日期格式
-Vue.filter('fmtdate', (v)=> {
+Vue.filter('fmtdate', (v) => {
   return moment(v).format('YYYY-MM-DD');
 })
 
@@ -34,6 +34,8 @@ Vue.component(cusBread.name, cusBread)
 new Vue({
   el: '#app',
   router,
-  components: { App },
+  components: {
+    App
+  },
   template: '<App/>'
 })
