@@ -11,6 +11,9 @@ import '@/assets/css/base.css'
 
 import moment from 'moment'
 
+import cusBread from '@/components/cusBread.vue'
+
+
 import axios from 'axios'
 axios.defaults.baseURL="http://localhost:8888/api/private/v1/"
 Vue.prototype.$http = axios
@@ -23,6 +26,9 @@ Vue.use(ElementUI)
 Vue.filter('fmtdate', (v)=> {
   return moment(v).format('YYYY-MM-DD');
 })
+
+//全局自定义面包屑组件
+Vue.component(cusBread.name, cusBread)
 
 /* eslint-disable no-new */
 new Vue({
