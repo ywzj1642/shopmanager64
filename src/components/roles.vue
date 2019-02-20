@@ -65,9 +65,12 @@
         </template>
       </el-table-column>
     </el-table>
+
+
 <!-- 对话框,分配权限 -->
     <el-dialog title="分配权限" :visible.sync="dialogFormVisibleFenpei">
         <el-tree
+          ref="treeDom"
           :data="treelist"
           show-checkbox
           node-key="id"
@@ -120,16 +123,40 @@ export default {
       defaultProps:{
         label:"authName",
         children:"children"
-      }
+      },
+      currRoledId:-1
     };
   },
   created() {
     this.getRoles();
   },
   methods: {
+    //分配全向-发送请求
+    async getRights(){
+      //ref操作DOM
+      //1.给要操作的标签设置ref属性,属性值随意起
+      //2.在js代码中通过this.$refs.ref值.js方法
+      // 方法是通过文档查找
+      //获取选中节点的id,返回值是一个数组
+      const arr1 = this.$refs.treeDom.getCheckedKeys();
+      //获取半选节点的id,返回值是一个数组
+      const arr2 = this.$refs.treeDom.getHalfCheckedKeys();
+      const arr = [...arr1, ...arr2];
+      const res = await this.$http.post(`roles/${this.currRoledId}/rights`,{
+        rids:arr.join(",")
+      })
+      const {data,meta: {msg, status}} = res.data;
+          if(status === 200){
+            console.log(123);
+            this.dialogFormVisibleFenpei = false;
+            this.getRoles();
+          }
+
+    },
       //分配权限
       //对号方法
       async showDiaSetRights(role){
+        this.currRoledId = role.id;
         //发送请求,获取数据
         const res  = await this.$http.get(`rights/tree`)
         console.log(res);
