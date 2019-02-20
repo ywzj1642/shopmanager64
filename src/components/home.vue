@@ -50,16 +50,7 @@
     //代码位置,在组件加载之前
 
     beforeCreate() {
-      if(!localStorage.getItem('token')){
-        this.$router.push({
-          name: 'login'
-        });
-        // this.$message.warning('清闲登录')  报错????
-        this.$message({
-          message: '请先登录',
-          type: 'warning'
-        });
-      }
+      
     },
 
     beforeMount() {
