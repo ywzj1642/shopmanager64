@@ -55,7 +55,7 @@
             plain
           ></el-button>
           <el-button
-            @click="showDiaSetRole(scope.row)"
+            @click="showDiaSetRights(scope.row)"
             type="success"
             icon="el-icon-check"
             size="mini"
@@ -65,6 +65,22 @@
         </template>
       </el-table-column>
     </el-table>
+<!-- 对话框,分配权限 -->
+    <el-dialog title="分配权限" :visible.sync="dialogFormVisibleFenpei">
+        <el-tree
+          :data="treelist"
+          show-checkbox
+          node-key="id"
+          default-expand-all
+          :default-checked-keys="arrCheck"
+          :props="defaultProps"
+        ></el-tree>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisibleFenpei = false">取 消</el-button>
+        <el-button type="primary" @click="getRights()">确 定</el-button>
+      </div>
+    </el-dialog>
+
 
     <!-- 对话框  添加用户 -->
     <!-- <el-dialog title="添加用户" :visible.sync="dialogFormVisibleAdd">
@@ -86,7 +102,9 @@
         <el-button @click="dialogFormVisibleAdd = false">取 消</el-button>
         <el-button type="primary" @click="addUser()">确 定</el-button>
       </div>
-    </el-dialog>-->
+    </el-dialog> -->
+  
+  
   </el-card>
 </template>
 
@@ -94,13 +112,64 @@
 export default {
   data() {
     return {
-      roles: []
+      roles: [],
+      dialogFormVisibleFenpei: false,
+      //树形结构相关数据
+      treelist:[],
+      arrCheck:[],
+      defaultProps:{
+        label:"authName",
+        children:"children"
+      }
     };
   },
   created() {
     this.getRoles();
   },
   methods: {
+      //分配权限
+      //对号方法
+      async showDiaSetRights(role){
+        //发送请求,获取数据
+        const res  = await this.$http.get(`rights/tree`)
+        console.log(res);
+        //结构赋值,获取信息
+        const {data,meta: {msg, status}} = res.data;
+          if(status === 200){
+             //赋值给treelist
+             this.treelist = data;
+             //取出所有层级的id,放到一个新数组里
+            // const temp = [];
+            // this.treelist.forEach(item1 => {
+            //   temp.push(item1.id);
+            //   item1.children.forEach(item2 => {
+            //     temp.push(item2.id);
+            //     item2.children.forEach(item3 => {
+            //       temp.push(item3.id)
+            //     });
+            //   });
+            // });
+            // this.arrExpand = temp;
+
+            //获取当前角色所有权限
+            const temp2 = [];
+            role.children.forEach(item1 => {
+              // temp2.push(item1.id);
+              item1.children.forEach(item2 => {
+                // temp2.push(item2.id);
+                item2.children.forEach(item3 => {
+                  temp2.push(item3.id)
+                });
+              });
+            });
+            this.arrCheck = temp2;
+
+          }
+        //展示对话框
+        this.dialogFormVisibleFenpei = true;
+      },
+
+
       //取消权限
       async deleRights(role, rights){
           //发送删除权限请求,
@@ -115,10 +184,7 @@ export default {
               role.children = data;
           }
       },
-      //对号方法
-      showDiaSetRole(){
-
-      },
+      
       //获取列表数据
     async getRoles() {
       const res = await this.$http.get("roles");
