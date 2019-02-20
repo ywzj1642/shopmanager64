@@ -16,7 +16,7 @@ HttpServer.install = function (Vue) {
       //当标识不是login,先设置头部,再发送请求
       if(config.url !== 'login'){
         const AUTH_TOKEN = localStorage.getItem("token");
-        config.headers.common["Authorization"] = AUTH_TOKEN;
+        config.headers["Authorization"] = AUTH_TOKEN;
 
       }
       // console.log('请求发起了');

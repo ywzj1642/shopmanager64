@@ -33,7 +33,7 @@ export default {
     async handleLogin() {
       // console.log(1)
       const res = await this.$http.post(`login`, this.formdata);
-      console.log(res);
+      // console.log(res);
       const {
         data: {
           data:{token},
