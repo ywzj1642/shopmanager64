@@ -8,6 +8,7 @@ import Users from '@/components/users.vue'
 import Rights from '@/components/rights.vue'
 import Roles from '@/components/roles.vue'
 import Goodslist from '@/components/goodslist.vue'
+import Goodsadd from '@/components/Goodsadd.vue'
 import {Message} from 'element-ui'
 Vue.use(Router)
 
@@ -33,6 +34,10 @@ Vue.use(Router)
         name: 'goods',
         path: '/goods',
         component: Goodslist
+      },{
+        name: 'goodsadd',
+        path: '/goodsadd',
+        component: Goodsadd
       }]
     },{
       name:'login',
