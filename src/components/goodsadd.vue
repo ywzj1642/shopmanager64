@@ -30,13 +30,13 @@
             <el-input v-model="form.goods_number"></el-input>
           </el-form-item>
           <el-form-item label="商品分类">
+            {{selectedOptions}}
             <el-cascader
               clearable
               expand-trigger="hover"
               :options="options"
               :props="defaultProp"
               v-model="selectedOptions"
-              @change="handleChange"
             ></el-cascader>
           </el-form-item>
         </el-tab-pane>
@@ -48,7 +48,7 @@
           </el-form-item>
         </el-tab-pane>
         <el-tab-pane name="3" label="商品属性">
-          <el-form-item v-for="(item) in arrStatic" :key="item.cat_id" :label="item.cat_name">
+          <el-form-item v-for="(item,i) in arrStatic" :key="i" :label="item.cat_name">
             <el-input v-model="item.attr_vals"></el-input>
           </el-form-item>
         </el-tab-pane>
@@ -80,10 +80,6 @@
     </el-form>
   </el-card>
 </template>
-</el-steps>
-
-  </el-card>
-</template>
 
 <script>
 import 'quill/dist/quill.core.css'
@@ -102,17 +98,17 @@ export default {
       //添加商品的表单数据
       form: {
         goods_name: "",
-        goods_cat: "",
         goods_price: "",
         goods_number: "",
         goods_weight: "",
         goods_introduce: "",
-        pics: "",
-        attrs: ""
+        goods_cat: "",//以','分隔的分类列表,不能为空->"1,2,3"
+        pics: [], //上传图片的临时路径,可以为空->pcis:[{pic:临时路径}]
+        attrs: [] //商品参数-> [{attr_id:?, attr_value:?}]->来源arrDylan和arrStatic中的每个数据
       },
       //级联使用的数据
       options: [],
-      selectedOptions: [1, 3, 6], //三级分类层级id组成的数组
+      selectedOptions: [], //三级分类层级id组成的数组
       defaultProp: {
         value: "cat_id",
         label: "cat_name",
@@ -133,41 +129,81 @@ export default {
   },
   methods: {
     //添加商品
-    addGoods(){
-
+    async addGoods(){
+      this.form.goods_cat = this.selectedOptions.join(',');
+      //attr:[{attr_id:?, attr_value:?}]
+      //数组的方法,map,可以遍历数组,有返回值,返回值是一个数组
+      const arr1 = this.arrDy.map((item) => {
+        return {attr_id: item.attr_id, attr_value: item.attr_vals}
+      })
+      const arr2 = this.arrStatic.map((item) => {
+        return {attr_id: item.attr_id, attr_value: item.attr_vals}
+      })
+      this.form.attrs = [...arr1, ...arr2];
+      const res = await this.$http.post('goods', this.form);
+      const {data, meta: {msg, status}} = res.data
+      if(status === 201){
+        // 提示信息
+        this.$message.success(msg)
+        //回到列表页,
+        this.$router.push({
+          name: "goods"
+        })
+      }else {
+        this.$message.warning(msg)
+      }
     },
     //点击上传
     handleRemove(file, fileList) {
       // console.log('remove----')
       // console.log(file);
       // file.response.data.tmp_path --->删除临时路径
+      //findIndex,可以遍历数组,并返回符合条件的下标 
+      const Index = this.form.pics.findIndex(item => {
+        return item.pic === file.response.data.tem_path;
+      });
+      //删除下标为Index的元素
+      this.form.pics.splice(Index, 1);
+
+
     },
     handleSuccess(response, file, fileList){
       // console.log(response);
       // response.data.tem_path ->临时路径
+      this.form.pics.push({
+        pic: response.data.tem_path
+      })
+
+
     },
     //点击tab键,发送请求
     async changeTab() {
       if (this.active === "2" || this.active === "3") {
         if (this.selectedOptions.length !== 3) {
           this.$message.warning("请选择三级分类");
+          if(this.active === '2'){
+            this.arrDy = [];
+          }else {
+            this.arrStatic = [];
+          }
           return;
         }
         if (this.active === "3") {
+          // console.log(123);
           const res = await this.$http.get(
             `categories/${this.selectedOptions[2]}/attributes?sel=only`
           );
-          // console.log(123);
+          // console.log(456)
           const {
             data,
             meta: { msg, status }
           } = res.data;
           if (status === 200) {
             this.arrStatic = data;
-            console.log(this.arrStatic);
+            // console.log(this.arrStatic);
           }
         }
-        if (this.active === 2) {
+        if (this.active === "2") {
           const res = await this.$http.get(
             `categories/${this.selectedOptions[2]}/attributes?sel=many`
           );
@@ -205,8 +241,7 @@ export default {
         this.options = data;
         // console.log(123,data)
       }
-    },
-    handleChange() {}
+    }
   }
 };
 </script>
