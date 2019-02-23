@@ -10,7 +10,9 @@ import Roles from '@/components/roles.vue'
 import Goodslist from '@/components/goodslist.vue'
 import Goodsadd from '@/components/goodsadd.vue'
 import Cateparams from '@/components/cateparams.vue'
+import Categories from '@/components/goodscate.vue'
 import {Message} from 'element-ui'
+
 
 Vue.use(Router)
 
@@ -44,6 +46,10 @@ Vue.use(Router)
         name: 'params',
         path: '/params',
         component: Cateparams
+      },{
+        name: 'categories',
+        path: '/categories',
+        component: Categories
       }]
     },{
       name:'login',

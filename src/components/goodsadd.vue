@@ -30,6 +30,7 @@
             <el-input v-model="form.goods_number"></el-input>
           </el-form-item>
           <el-form-item label="商品分类">
+            <!-- 级联选择器 -->
             {{selectedOptions}}
             <el-cascader
               clearable
@@ -37,6 +38,7 @@
               :options="options"
               :props="defaultProp"
               v-model="selectedOptions"
+              @change="handleChange"
             ></el-cascader>
           </el-form-item>
         </el-tab-pane>
@@ -190,6 +192,7 @@ export default {
         }
         if (this.active === "3") {
           // console.log(123);
+          //获取静态参数
           const res = await this.$http.get(
             `categories/${this.selectedOptions[2]}/attributes?sel=only`
           );
@@ -204,6 +207,7 @@ export default {
           }
         }
         if (this.active === "2") {
+          //获取动态参数
           const res = await this.$http.get(
             `categories/${this.selectedOptions[2]}/attributes?sel=many`
           );
@@ -239,8 +243,11 @@ export default {
       } = res.data;
       if (status === 200) {
         this.options = data;
-        // console.log(123,data)
+        console.log(123,data)
       }
+    },
+    handleChange(){
+
     }
   }
 };
