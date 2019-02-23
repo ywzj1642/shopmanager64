@@ -128,7 +128,31 @@ export default {
   },
   methods: {
     // 添加分类 - 发送请求
-    async addCate() {},
+    async addCate() {
+      //当填写数据为一级分类时,level为0,pid也为0
+      if(this.selectedOptions.length === 0){
+        this.form.cat_level = 0;
+        this.form.cat_pid = 0;
+      }
+      //当填写数据为二级分类时,level为1,pid为selectedOptions中第一个数,即下标为0的选项
+      if(this.selectedOptions.length === 1){
+        this.form.cat_level = 1;
+        this.form.cat_pid = this.selectedOptions[0];
+      }
+      //当填写数据为三级分类时,level为2,pid为selectedOptions中第二个数,即下标为1的选项
+      if(this.selectedOptions.length === 2){
+        this.form.cat_level = 2;
+        this.form.cat_pid = this.selectedOptions[1];
+      }
+      const res = await this.$http.post(`categories`, this.form)
+      // console.log(res);
+      const {data, meta: {msg, status}} = res.data;
+      if(status === 201){
+        this.dialogFormVisibleAdd = false;
+        this.getGoodsCate();
+      }
+
+    },
     // 添加分类- 显示对话框
     async addGoodsCate() {
       // 获取两级分类的数据
@@ -144,7 +168,7 @@ export default {
       );
       // console.log(res)
       this.list = res.data.data.result;
-      console.log(this.list);
+      // console.log(this.list);
 
       this.total = res.data.data.total;
     },
