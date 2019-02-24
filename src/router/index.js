@@ -11,6 +11,8 @@ import Goodslist from '@/components/goodslist.vue'
 import Goodsadd from '@/components/goodsadd.vue'
 import Cateparams from '@/components/cateparams.vue'
 import Categories from '@/components/goodscate.vue'
+import Order from '@/components/order.vue'
+import Reports from '@/components/reports.vue'
 import {Message} from 'element-ui'
 
 
@@ -50,6 +52,14 @@ Vue.use(Router)
         name: 'categories',
         path: '/categories',
         component: Categories
+      },{
+        name: 'orders',
+        path: '/orders',
+        component: Order
+      },{
+        name: 'reports',
+        path: '/reports',
+        component: Reports
       }]
     },{
       name:'login',
