@@ -13,7 +13,7 @@
     </el-header>
     <el-container class="container2">
       <el-aside width="200px" class="aside">
-        <el-menu :unique-opened="true" :router="true" default-active="2" class="el-menu-vertical-demo">
+        <el-menu @select="fn" :unique-opened="true" :router="true" :default-active="$route.name" class="el-menu-vertical-demo">
           <!-- 第一个导航 -->
           <el-submenu :index="item1.order+''" v-for="(item1) in menus" :key="item1.id">
             <template slot="title">
@@ -62,6 +62,13 @@
       // console.log(1111)
     },
     methods: {
+      //刷新回到最近导航激活状态
+      fn(index, indexPath){
+        // console.log(index)
+        // console.log(indexPath);
+        //获取当前路由数据
+        console.log(this.$route.name)
+      },
       //动态导航
       async getMenus(){
         const res = await this.$http.get(`menus`);
