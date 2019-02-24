@@ -8,6 +8,7 @@ import Users from '@/components/users.vue'
 import Rights from '@/components/rights.vue'
 import Roles from '@/components/roles.vue'
 import Order from '@/components/order.vue'
+import Reports from '@/components/reports.vue'
 import {Message} from 'element-ui'
 Vue.use(Router)
 
@@ -33,6 +34,10 @@ Vue.use(Router)
         name: 'orders',
         path: '/orders',
         component: Order
+      },{
+        name: 'reports',
+        path: '/reports',
+        component: Reports
       }]
     },{
       name:'login',
